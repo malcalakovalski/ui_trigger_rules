@@ -1,12 +1,9 @@
-
 # Setup -------------------------------------------------------------------
-
 
 library('lubridate')
 library('tidyverse')
 library('rvest')
 library('clock')
-
 
 # Find urls -------------------------------------------------------
 
@@ -22,14 +19,8 @@ format('%m%d%y')
 dates <- c(`2020`, `2021`)
 
 urls <- glue::glue('https://oui.doleta.gov/unemploy/trigger/{year(dates)}/trig_{format(dates, "%m%d%y")}.html')
-
-
 # Scrape ------------------------------------------------------------------
-my_url <- urls[1]
 
-read_html(my_url) %>%
-  html_element('table') %>%
-  html_table()
 read_data <- function(url) {
   date <- stringr::str_extract(url, '\\d{6}')
   html <- rvest::read_html(url)
