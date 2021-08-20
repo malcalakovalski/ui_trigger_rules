@@ -7,18 +7,26 @@ library('clock')
 
 # Find urls -------------------------------------------------------
 
-# TODO: Generalize method below by finding every Sunday for arbitrary vector of years
-# TODO: Make end value be the last Sunday from the present date
+pick_wkday <- function(wkday, start, end = lubridate::today()) {
+  start <- lubridate::as_date(start)
+  end <- lubridate::as_date(end)
+  wkday <- switch(wkday,
+                  'Sunday' = 0,
+                  'Monday' = 1,
+                  "Tuesday" = 2,
+                  "Wednesday" = 3,
+                  "Thursday" = 4,
+                  "Friday" = 5,
+                  "Saturday" = 6)
+  fwd_7 <- start + 0:6
+  first_day <- fwd_7[as.numeric(format(fwd_7,"%w")) == wkday]
+  seq.Date(first_day, end, by="week")
+}
 
-`2020` <-
-  seq(date_build(2020, 01, 05), date_build(2020, 12, 26), by = 7)
-format('%m%d%y')
-`2021` <-
-  seq(date_build(2021, 01, 03), date_build(2021, 08, 15), by = 7)
-
-dates <- c(`2020`, `2021`)
+dates <- pick_wkday('Sunday', '2011-01-01', today())
 
 urls <- glue::glue('https://oui.doleta.gov/unemploy/trigger/{year(dates)}/trig_{format(dates, "%m%d%y")}.html')
+
 # Scrape ------------------------------------------------------------------
 
 read_data <- function(url) {
