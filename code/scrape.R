@@ -3,7 +3,6 @@
 library('lubridate')
 library('tidyverse')
 library('rvest')
-library('clock')
 
 # Find urls -------------------------------------------------------
 
