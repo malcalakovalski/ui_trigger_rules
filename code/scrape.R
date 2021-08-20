@@ -22,7 +22,7 @@ pick_wkday <- function(wkday, start, end = lubridate::today()) {
   seq.Date(first_day, end, by="week")
 }
 
-dates <- pick_wkday('Sunday', '2011-01-01', today())
+dates <- pick_wkday('Sunday', '2009-01-01', today())
 
 urls <- glue::glue('https://oui.doleta.gov/unemploy/trigger/{year(dates)}/trig_{format(dates, "%m%d%y")}.html')
 
