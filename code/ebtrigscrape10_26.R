@@ -84,6 +84,46 @@ read_data <- function(urls) {
    )
 }
 
+### Suggested refactoring of read_data() to get data from non-shaded rows
+read_data_manu <- function(urls) {
+  date <- stringr::str_extract(urls, '\\d{6}')
+  # Take the html, save it, add in the opening table row tag <tr> missing from the non-shaded rows, and turn it back into an html object, which can then be scraped into a tibble.
+  temp <- tempfile()
+  download.file(urls, destfile = temp)
+  html_original <- readChar(gzfile(temp), file.info(temp)$size)
+  html_modified <- gsub("</TR>\n\n\n<TD", "</TR>\n\n\n<TR><TD", html_original, fixed = TRUE)
+  html <- rvest::read_html(html_modified)
+  html %>%
+    html_element('body') %>%
+    html_table(header = FALSE) %>%
+    select(1:last_col()) %>%
+    janitor::row_to_names(row_number = 8) %>%
+    janitor::clean_names() %>%
+    select(
+      on_threetur=1,
+      no_sixtur=2,
+      noturoption=3,
+      state = 4,
+      unemployment_rate = 5,
+      prior_years_percent = 6,
+      tur_sa = 7,
+      percent_of_last_year = 8,
+      percent_of_second_last_year = 9,
+      available_weeks = 10,
+      status = 11
+    ) %>%
+    slice(-1) %>%
+    mutate(across(
+      c(unemployment_rate:percent_of_second_last_year),
+      as.numeric
+    )) %>%
+    drop_na(unemployment_rate) %>%
+    mutate(
+      date = lubridate::as_date(date, format = '%m%d%y'),
+      .before = everything(),
+      state = as_factor(state)
+    )
+}
 
 read_data1 <- function(urls1) {
   date <- stringr::str_extract(urls1, '\\d{6}')
@@ -198,6 +238,8 @@ read_data3 <- function(urls3) {
 
 ui_trigger_data <- purrr::map_dfr(.x = urls,
                                   .f = read_data)
+ui_trigger_data_manu <- purrr::map_dfr(.x = urls,
+                                  .f = read_data_manu)
 ui_trigger_data1 <- purrr::map_dfr(.x=urls1,
                                    .f=read_data1)
 ui_trigger_data2<- purrr::map_dfr(.x=urls2,
