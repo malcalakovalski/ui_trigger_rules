@@ -1,4 +1,7 @@
 # Setup -------------------------------------------------------------------
+
+# One suggestion I have is to load libraries using librarian::shelf(). Eg: librarian::shelf(tidyverse, lubridate, rvest, clock, purrr, janitor, glue, writexl).
+
 library('lubridate')
 library('tidyverse')
 library('rvest')
@@ -6,7 +9,6 @@ library('clock')
 library('purrr')
 library('janitor')
 library('glue')
-library('dplyr')
 library('writexl')
 
 
@@ -84,13 +86,13 @@ read_data <- function(urls) {
 
 
 read_data1 <- function(urls1) {
-  date <- stringr::str_extract(urls1, '\\d{6}') 
+  date <- stringr::str_extract(urls1, '\\d{6}')
   html <- rvest::read_html(urls1)
   html %>%
     html_element('table') %>%
     html_table(header = FALSE) %>%
     select(1:last_col()) %>%
-    janitor::row_to_names(row_number = 7) %>% 
+    janitor::row_to_names(row_number = 7) %>%
     janitor::clean_names() %>%
     select(
       on_threetur=1,
@@ -110,7 +112,7 @@ read_data1 <- function(urls1) {
     ) %>%
     slice(-1) %>%
     mutate(across(
-      c(iur:available_weeks), 
+      c(iur:available_weeks),
       as.numeric
     )) %>%
     drop_na(iur) %>% #changed to iur see undropped by # to see why.
@@ -149,7 +151,7 @@ read_data2 <- function(urls2) {
       c(unemployment_rate:available_weeks),
       as.numeric
     )) %>%
-    drop_na(unemployment_rate) %>%  
+    drop_na(unemployment_rate) %>%
     mutate(
       date = lubridate::as_date(date, format = '%m%d%y'),
       .before = everything(),
@@ -204,7 +206,7 @@ ui_trigger_data3<- purrr::map_dfr(.x=urls3,
                                   .f=read_data3)
 ui_trigger_data4<- purrr::map_dfr(.x=urls4,
                                   .f=read_data2)
-###ignore errors for data4 will manually fix 
+###ignore errors for data4 will manually fix
 ui_trigger_data4clean<-ui_trigger_data4%>%drop_na(unemployment_rate)%>%add_column(iur= NA)%>%add_column(tur= NA)%>%add_column(percent_of_third_last_year= NA)
 ui_trigger_data4clean['date'][ui_trigger_data4clean['date'] == '2007-01-06'] <- as_date('2008-01-06')
 
