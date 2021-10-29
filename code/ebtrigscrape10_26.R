@@ -71,7 +71,7 @@ read_data <- function(urls) {
       available_weeks = 10,
       status = 11
     ) %>%
-    slice(-1) %>%
+
     mutate(across(
       c(unemployment_rate:percent_of_second_last_year),
       as.numeric
@@ -112,7 +112,6 @@ read_data_manu <- function(urls) {
       available_weeks = 10,
       status = 11
     ) %>%
-    slice(-1) %>%
     mutate(across(
       c(unemployment_rate:percent_of_second_last_year),
       as.numeric
