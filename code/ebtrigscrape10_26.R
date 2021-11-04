@@ -91,8 +91,11 @@ read_data_manu <- function(urls) {
   temp <- tempfile()
   download.file(urls, destfile = temp)
   html_original <- readChar(gzfile(temp), file.info(temp)$size)
-  html_modified <- gsub("</TR>\n\n\n<TD", "</TR>\n\n\n<TR><TD", html_original, fixed = TRUE)
-  html <- rvest::read_html(html_modified)
+  html_modified1 <- gsub("</TR>\n\n\n<TD", "</TR>\n\n\n<TR><TD", html_original, fixed = TRUE)
+  # Later dates have a few \r tags (carriage reutrn tags) in between the \n (new line) tags for shaded states
+  html_modified2 <- gsub("</TR>\r\n\r\n\r\n<TD",
+                         "</TR>\r\n\r\n\r\n<TR><TD", html_modified1)
+  html <- rvest::read_html(html_modified2)
   html %>%
     html_element('body') %>%
     html_table(header = FALSE) %>%
